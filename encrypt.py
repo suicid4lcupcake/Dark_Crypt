@@ -1,4 +1,4 @@
-from AesEverywhere import aes256
+from cryptography.fernet import Fernet 
 from colorama import Fore
 import os 
 def mass_encrypt(folder_path , password):
@@ -16,10 +16,10 @@ def mass_encrypt(folder_path , password):
         print(Fore.RED + 'Folder Not Found ?!')
 def encrypt(filename , password):
     try:
-        with open(filename , 'r') as file:
+        with open(filename , 'rb') as file:
             data = file.read()
             file.close()
-        encrypted_data = aes256.encrypt(data , password)
+        encrypted_data = Fernet(password).encrypt(data)
         with open(filename , 'w') as file:
             file.write(encrypted_data.decode())
             file.close()
@@ -28,3 +28,5 @@ def encrypt(filename , password):
         print(Fore.RED + f'{filename} Not Found ?!')
     except PermissionError:
         print(Fore.RED + f'You Need Root To Encrypt ==> {filename}')
+    except:
+        print(Fore.RED + f'Failed To Encrypt ==> {filename}')
