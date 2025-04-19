@@ -1,4 +1,4 @@
-from AesEverywhere import aes256
+from cryptography.fernet import Fernet 
 from colorama import Fore
 import os 
 def mass_decrypt(folder_path , password):
@@ -12,15 +12,23 @@ def mass_decrypt(folder_path , password):
         print(Fore.RED + 'Folder Not Found ?!')
 
 def decrypt(filename , password):
-    with open(filename , 'r') as file:
-        encrypted_data = file.read()
-        file.close()
-    decrypted_data = aes256.decrypt(encrypted_data , password)
-    if decrypted_data == b'':
-        print(Fore.RED + f'{filename} Incorrect Password !')
-    else:
-        with open(filename , 'w') as file:
-            file.write(decrypted_data.decode())
-            print(Fore.GREEN + f'You Successfully Decrypted => {filename}')
+    try:
+        with open(filename , 'rb') as file:
+            encrypted_data = file.read()
             file.close()
+        decrypted_data = Fernet(password).decrypt(encrypted_data)
+        if decrypted_data == b'':
+            print(Fore.RED + f'{filename} Incorrect Password !')
+        else:
+            with open(filename , 'w') as file:
+                file.write(decrypted_data.decode())
+                print(Fore.GREEN + f'You Successfully Decrypted => {filename}')
+                file.close()
+    except FileNotFoundError:
+        print(Fore.RED + f'{filename} Not Found ?!')
+    except PermissionError:
+        print(Fore.RED + f'You Need Root To Decrypt ==> {filename}')
+    except:
+        print(Fore.RED + f'Failed To Decrypt ==> {filename}')
+
         
